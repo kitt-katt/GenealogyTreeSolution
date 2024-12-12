@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "Mt3eDkyxQ8eZg4t6vqyS0CvOikSxJi9nMfGlXfO8hImHr1cmVHom8owG1cxOyAGoUDbGjofMj9eIE84JwXcn8Q==",
+  "success": true,
+  "projectFilePath": "/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/BLL.csproj",
+  "expectedPackageFiles": [
+    "/home/kitt/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.10/microsoft.aspnetcore.app.ref.8.0.10.nupkg.sha512"
+  ],
+  "logs": []
+}

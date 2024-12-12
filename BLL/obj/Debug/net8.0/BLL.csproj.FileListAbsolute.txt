@@ -1,0 +1,15 @@
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/bin/Debug/net8.0/BLL.deps.json
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/bin/Debug/net8.0/BLL.dll
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/bin/Debug/net8.0/BLL.pdb
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/bin/Debug/net8.0/Domain.dll
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/bin/Debug/net8.0/Domain.pdb
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/obj/Debug/net8.0/BLL.csproj.AssemblyReference.cache
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/obj/Debug/net8.0/BLL.GeneratedMSBuildEditorConfig.editorconfig
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/obj/Debug/net8.0/BLL.AssemblyInfoInputs.cache
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/obj/Debug/net8.0/BLL.AssemblyInfo.cs
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/obj/Debug/net8.0/BLL.csproj.CoreCompileInputs.cache
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/obj/Debug/net8.0/BLL.csproj.CopyComplete
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/obj/Debug/net8.0/BLL.dll
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/obj/Debug/net8.0/refint/BLL.dll
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/obj/Debug/net8.0/BLL.pdb
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/BLL/obj/Debug/net8.0/ref/BLL.dll

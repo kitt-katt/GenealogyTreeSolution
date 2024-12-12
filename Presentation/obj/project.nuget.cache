@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "yrnM/t8dEKyQ4KoOvrauvx6GxEjEuHLdeTj046A9NQIbTRr3m4RD38zmzkaLXvtqYX+CsRK++F/kds3Ey2dI3Q==",
+  "success": true,
+  "projectFilePath": "/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Presentation/Presentation.csproj",
+  "expectedPackageFiles": [
+    "/home/kitt/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.10/microsoft.aspnetcore.app.ref.8.0.10.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,11 @@
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/bin/Debug/net8.0/Domain.deps.json
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/bin/Debug/net8.0/Domain.dll
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/bin/Debug/net8.0/Domain.pdb
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/obj/Debug/net8.0/Domain.GeneratedMSBuildEditorConfig.editorconfig
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/obj/Debug/net8.0/Domain.AssemblyInfoInputs.cache
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/obj/Debug/net8.0/Domain.AssemblyInfo.cs
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/obj/Debug/net8.0/Domain.csproj.CoreCompileInputs.cache
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/obj/Debug/net8.0/Domain.dll
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/obj/Debug/net8.0/refint/Domain.dll
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/obj/Debug/net8.0/Domain.pdb
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/Domain/obj/Debug/net8.0/ref/Domain.dll

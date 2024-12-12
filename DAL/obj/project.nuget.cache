@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "oh9eGjYH9wcgPug4jAzCVhc7dkUahWQtbtdvA++uAVU/EqmFr5SRBRjNhvrLIKHus+oLHXG5lqIf9Y1C+VLsXA==",
+  "success": true,
+  "projectFilePath": "/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/DAL/DAL.csproj",
+  "expectedPackageFiles": [
+    "/home/kitt/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.10/microsoft.aspnetcore.app.ref.8.0.10.nupkg.sha512"
+  ],
+  "logs": []
+}
