@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BLL.Services;
+using DAL.EF;
 using DAL.Repositories;
 using Domain.Models;
 
@@ -8,24 +9,27 @@ class Program
 {
     static void Main()
     {
-        var repository = new FileRepository("data.json");
+        // Подключение к SQLite БД
+        // База будет создаваться в файле "people.db"
+        var connectionString = "Data Source=people.db";
+        var context = new PersonContext(connectionString);
+        var repository = new EfRepository(context);
         var service = new GenealogyService(repository);
 
         while (true)
         {
             Console.WriteLine("Меню:");
             Console.WriteLine("1. Создать человека");
-            Console.WriteLine("2. Добавить человека в древо");
-            Console.WriteLine("3. Установить отношение родитель-ребенок");
-            Console.WriteLine("4. Установить отношение супруги");
-            Console.WriteLine("5. Показать ближайших родственников (родители и дети)");
-            Console.WriteLine("6. Показать все древо");
-            Console.WriteLine("7. Вычислить возраст предка при рождении потомка");
-            Console.WriteLine("8. Очистить древо");
-            Console.WriteLine("9. Найти общих предков для двух человек");
+            Console.WriteLine("2. Удалить человека");
+            Console.WriteLine("3. Создать родителя для человека по id");
+            Console.WriteLine("4. Создать потомка для человека по id");
+            Console.WriteLine("5. Установить отношение супруги");
+            Console.WriteLine("6. Показать всех потомков для человека по id");
+            Console.WriteLine("7. Показать всех предков для человека по id");
+            Console.WriteLine("8. Показать все дерево");
+            Console.WriteLine("9. Очистить все дерево");
             Console.WriteLine("0. Выход");
             Console.Write("Выберите действие: ");
-
             var choice = Console.ReadLine();
 
             if (choice == "0") break;
@@ -36,29 +40,29 @@ class Program
                     CreatePerson(service);
                     break;
                 case "2":
-                    AddPerson(service);
+                    DeletePerson(service);
                     break;
                 case "3":
-                    SetParentChild(service);
+                    AddParent(service);
                     break;
                 case "4":
-                    SetSpouse(service);
+                    AddChild(service);
                     break;
                 case "5":
-                    ShowRelatives(service);
+                    SetSpouse(service);
                     break;
                 case "6":
-                    service.DisplayTree();
+                    ShowDescendants(service);
                     break;
                 case "7":
-                    CalculateAncestorAge(service);
+                    ShowAncestors(service);
                     break;
                 case "8":
-                    service.ClearTree();
-                    Console.WriteLine("Древо очищено.");
+                    service.DisplayTree();
                     break;
                 case "9":
-                    FindCommonAncestors(service);
+                    service.ClearTree();
+                    Console.WriteLine("Древо очищено.");
                     break;
                 default:
                     Console.WriteLine("Неверный выбор.");
@@ -82,11 +86,8 @@ class Program
             Enum.TryParse<Gender>(genderStr, out var gender))
         {
             var person = service.CreatePerson(name, birthDate, gender);
-            Console.WriteLine($"Человек создан: ID = {person.Id}");
-            // Здесь мы только создали объект в памяти, но не добавили в репозиторий.
-            // Можно добавить сразу:
             service.AddPersonToTree(person);
-            Console.WriteLine("Человек добавлен в древо.");
+            Console.WriteLine($"Человек создан и добавлен в древо: ID = {person.Id}");
         }
         else
         {
@@ -94,36 +95,14 @@ class Program
         }
     }
 
-    static void AddPerson(IFamilyTreeService service)
+    static void DeletePerson(IFamilyTreeService service)
     {
-        Console.Write("Введите ID человека (Guid): ");
+        Console.Write("Введите ID человека: ");
         var idStr = Console.ReadLine();
         if (Guid.TryParse(idStr, out var id))
         {
-            Console.Write("Введите ФИО: ");
-            var name = Console.ReadLine();
-            Console.Write("Введите дату рождения (гггг-мм-дд): ");
-            var dateStr = Console.ReadLine();
-            Console.Write("Введите пол (Male/Female/Other): ");
-            var genderStr = Console.ReadLine();
-
-            if (DateTime.TryParse(dateStr, out var birthDate) &&
-                Enum.TryParse<Gender>(genderStr, out var gender))
-            {
-                var person = new Person
-                {
-                    Id = id,
-                    FullName = name,
-                    BirthDate = birthDate,
-                    Gender = gender
-                };
-                service.AddPersonToTree(person);
-                Console.WriteLine("Человек добавлен в древо.");
-            }
-            else
-            {
-                Console.WriteLine("Некорректный ввод данных.");
-            }
+            service.DeletePerson(id);
+            Console.WriteLine("Человек удалён.");
         }
         else
         {
@@ -131,17 +110,59 @@ class Program
         }
     }
 
-    static void SetParentChild(IFamilyTreeService service)
+    static void AddParent(IFamilyTreeService service)
     {
-        Console.Write("Введите ID родителя: ");
-        var pidStr = Console.ReadLine();
-        Console.Write("Введите ID ребенка: ");
-        var cidStr = Console.ReadLine();
-
-        if (Guid.TryParse(pidStr, out var pid) && Guid.TryParse(cidStr, out var cid))
+        Console.Write("Введите ID человека (ребёнка): ");
+        var childIdStr = Console.ReadLine();
+        if (!Guid.TryParse(childIdStr, out var childId))
         {
-            service.SetParentChildRelationship(pid, cid);
-            Console.WriteLine("Отношение родитель-ребенок установлено.");
+            Console.WriteLine("Некорректный ID ребёнка.");
+            return;
+        }
+
+        Console.Write("Введите ФИО родителя: ");
+        var name = Console.ReadLine();
+        Console.Write("Введите дату рождения родителя (гггг-мм-дд): ");
+        var dateStr = Console.ReadLine();
+        Console.Write("Введите пол родителя (Male/Female/Other): ");
+        var genderStr = Console.ReadLine();
+
+        if (DateTime.TryParse(dateStr, out var birthDate) &&
+            Enum.TryParse<Gender>(genderStr, out var gender))
+        {
+            var parent = service.CreatePerson(name, birthDate, gender);
+            service.AddParentToPerson(childId, parent);
+            Console.WriteLine($"Родитель добавлен к человеку {childId}. ID родителя = {parent.Id}");
+        }
+        else
+        {
+            Console.WriteLine("Некорректный ввод.");
+        }
+    }
+
+    static void AddChild(IFamilyTreeService service)
+    {
+        Console.Write("Введите ID человека (родителя): ");
+        var parentIdStr = Console.ReadLine();
+        if (!Guid.TryParse(parentIdStr, out var parentId))
+        {
+            Console.WriteLine("Некорректный ID родителя.");
+            return;
+        }
+
+        Console.Write("Введите ФИО ребёнка: ");
+        var name = Console.ReadLine();
+        Console.Write("Введите дату рождения (гггг-мм-дд): ");
+        var dateStr = Console.ReadLine();
+        Console.Write("Введите пол (Male/Female/Other): ");
+        var genderStr = Console.ReadLine();
+
+        if (DateTime.TryParse(dateStr, out var birthDate) &&
+            Enum.TryParse<Gender>(genderStr, out var gender))
+        {
+            var child = service.CreatePerson(name, birthDate, gender);
+            service.AddChildToPerson(parentId, child);
+            Console.WriteLine($"Потомок добавлен к человеку {parentId}. ID потомка = {child.Id}");
         }
         else
         {
@@ -167,17 +188,25 @@ class Program
         }
     }
 
-    static void ShowRelatives(IFamilyTreeService service)
+    static void ShowDescendants(IFamilyTreeService service)
     {
         Console.Write("Введите ID человека: ");
         var idStr = Console.ReadLine();
         if (Guid.TryParse(idStr, out var id))
         {
-            var parents = service.GetParents(id).ToList();
-            var children = service.GetChildren(id).ToList();
-
-            Console.WriteLine("Родители: " + (parents.Any() ? string.Join(", ", parents.Select(p => p.FullName)) : "Нет"));
-            Console.WriteLine("Дети: " + (children.Any() ? string.Join(", ", children.Select(p => p.FullName)) : "Нет"));
+            var descendants = service.GetAllDescendants(id).ToList();
+            if (descendants.Any())
+            {
+                Console.WriteLine("Потомки:");
+                foreach (var d in descendants)
+                {
+                    Console.WriteLine($"- {d.FullName} ({d.Id})");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Нет потомков.");
+            }
         }
         else
         {
@@ -185,53 +214,29 @@ class Program
         }
     }
 
-    static void CalculateAncestorAge(IFamilyTreeService service)
+    static void ShowAncestors(IFamilyTreeService service)
     {
-        Console.Write("Введите ID предка: ");
-        var aidStr = Console.ReadLine();
-        Console.Write("Введите ID потомка: ");
-        var didStr = Console.ReadLine();
-
-        if (Guid.TryParse(aidStr, out var aid) && Guid.TryParse(didStr, out var did))
+        Console.Write("Введите ID человека: ");
+        var idStr = Console.ReadLine();
+        if (Guid.TryParse(idStr, out var id))
         {
-            int age = service.GetAncestorAgeAtDescendantBirth(aid, did);
-            if (age >= 0)
-                Console.WriteLine($"Возраст предка при рождении потомка: {age} лет.");
-            else
-                Console.WriteLine("Невозможно вычислить возраст.");
-        }
-        else
-        {
-            Console.WriteLine("Некорректный ввод.");
-        }
-    }
-
-    static void FindCommonAncestors(IFamilyTreeService service)
-    {
-        Console.Write("Введите ID первого человека: ");
-        var p1Str = Console.ReadLine();
-        Console.Write("Введите ID второго человека: ");
-        var p2Str = Console.ReadLine();
-
-        if (Guid.TryParse(p1Str, out var p1) && Guid.TryParse(p2Str, out var p2))
-        {
-            var common = service.GetCommonAncestors(p1, p2).ToList();
-            if (common.Any())
+            var ancestors = service.GetAllAncestors(id).ToList();
+            if (ancestors.Any())
             {
-                Console.WriteLine("Общие предки:");
-                foreach (var c in common)
+                Console.WriteLine("Предки:");
+                foreach (var a in ancestors)
                 {
-                    Console.WriteLine($"  {c.FullName}");
+                    Console.WriteLine($"- {a.FullName} ({a.Id})");
                 }
             }
             else
             {
-                Console.WriteLine("Нет общих предков.");
+                Console.WriteLine("Нет предков.");
             }
         }
         else
         {
-            Console.WriteLine("Некорректный ввод.");
+            Console.WriteLine("Некорректный ID.");
         }
     }
 }
