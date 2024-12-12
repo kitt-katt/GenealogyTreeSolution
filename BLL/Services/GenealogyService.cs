@@ -31,18 +31,29 @@ namespace BLL.Services
             _repository.AddPerson(person);
         }
 
-        public void SetParentChildRelationship(Guid parentId, Guid childId)
+        public void DeletePerson(Guid personId)
         {
-            var parent = _repository.GetPersonById(parentId);
-            var child = _repository.GetPersonById(childId);
+            _repository.DeletePerson(personId);
+        }
 
-            if (parent == null || child == null) return;
+        public void AddParentToPerson(Guid personId, Person parent)
+        {
+            var child = _repository.GetPersonById(personId);
+            if (child == null) return;
+            _repository.AddPerson(parent);
 
-            if (!parent.Children.Contains(child.Id))
-                parent.Children.Add(child.Id);
-            if (!child.Parents.Contains(parent.Id))
-                child.Parents.Add(parent.Id);
+            parent.Children.Add(new PersonChild { ParentId = parent.Id, ChildId = child.Id });
+            _repository.UpdatePerson(parent);
+            _repository.UpdatePerson(child);
+        }
 
+        public void AddChildToPerson(Guid personId, Person child)
+        {
+            var parent = _repository.GetPersonById(personId);
+            if (parent == null) return;
+
+            _repository.AddPerson(child);
+            parent.Children.Add(new PersonChild { ParentId = parent.Id, ChildId = child.Id });
             _repository.UpdatePerson(parent);
             _repository.UpdatePerson(child);
         }
@@ -54,50 +65,74 @@ namespace BLL.Services
 
             if (p1 == null || p2 == null) return;
 
-            p1.Spouse = p2.Id;
-            p2.Spouse = p1.Id;
+            p1.SpouseId = p2.Id;
+            p2.SpouseId = p1.Id;
 
             _repository.UpdatePerson(p1);
             _repository.UpdatePerson(p2);
         }
 
-        public IEnumerable<Person> GetParents(Guid personId)
+        public IEnumerable<Person> GetAllDescendants(Guid personId)
         {
-            var person = _repository.GetPersonById(personId);
-            if (person == null) return Enumerable.Empty<Person>();
+            var descendants = new List<Person>();
+            var visited = new HashSet<Guid>();
 
-            return person.Parents.Select(pid => _repository.GetPersonById(pid)).Where(p => p != null);
-        }
-
-        public IEnumerable<Person> GetChildren(Guid personId)
-        {
-            var person = _repository.GetPersonById(personId);
-            if (person == null) return Enumerable.Empty<Person>();
-
-            return person.Children.Select(cid => _repository.GetPersonById(cid)).Where(c => c != null);
-        }
-
-        public void DisplayTree()
-        {
-            var all = _repository.GetAllPersons().ToList();
-            if (!all.Any())
+            void DFS(Guid pid)
             {
-                Console.WriteLine("Дерево пусто.");
-                return;
+                var p = _repository.GetPersonById(pid);
+                if (p == null) return;
+
+                foreach (var ch in p.Children)
+                {
+                    if (!visited.Contains(ch.ChildId))
+                    {
+                        visited.Add(ch.ChildId);
+                        var child = _repository.GetPersonById(ch.ChildId);
+                        if (child != null)
+                        {
+                            descendants.Add(child);
+                            DFS(child.Id);
+                        }
+                    }
+                }
             }
 
-            foreach (var p in all)
-            {
-                Console.WriteLine($"[{p.Id}] {p.FullName}, {p.BirthDate:yyyy-MM-dd}, {p.Gender}");
-                var parents = GetParents(p.Id).Select(x => x.FullName);
-                var children = GetChildren(p.Id).Select(x => x.FullName);
-                var spouse = p.Spouse.HasValue ? _repository.GetPersonById(p.Spouse.Value)?.FullName : "Нет";
+            DFS(personId);
+            return descendants;
+        }
 
-                Console.WriteLine($"  Родители: {(parents.Any() ? string.Join(", ", parents) : "Нет")}");
-                Console.WriteLine($"  Дети: {(children.Any() ? string.Join(", ", children) : "Нет")}");
-                Console.WriteLine($"  Супруг(а): {spouse}");
-                Console.WriteLine();
+        public IEnumerable<Person> GetAllAncestors(Guid personId)
+        {
+            var ancestors = new List<Person>();
+            var visited = new HashSet<Guid>();
+
+            void DFS(Guid cid)
+            {
+                var c = _repository.GetPersonById(cid);
+                if (c == null) return;
+
+                foreach (var pr in c.Parents)
+                {
+                    if (!visited.Contains(pr.ParentId))
+                    {
+                        visited.Add(pr.ParentId);
+                        var parent = _repository.GetPersonById(pr.ParentId);
+                        if (parent != null)
+                        {
+                            ancestors.Add(parent);
+                            DFS(parent.Id);
+                        }
+                    }
+                }
             }
+
+            DFS(personId);
+            return ancestors;
+        }
+
+        public IEnumerable<Person> GetAllPersons()
+        {
+            return _repository.GetAllPersons();
         }
 
         public void ClearTree()
@@ -108,6 +143,52 @@ namespace BLL.Services
                 _repository.DeletePerson(p.Id);
             }
             _repository.SaveChanges();
+        }
+
+        public void DisplayTree()
+        {
+            var all = _repository.GetAllPersons().ToList();
+            var roots = all.Where(p => !p.Parents.Any()).ToList();
+
+            if (!roots.Any())
+            {
+                Console.WriteLine("Дерево пусто или нет корневых предков.");
+                return;
+            }
+
+            foreach (var root in roots)
+            {
+                PrintPerson(root, 0, lastChild:true);
+            }
+        }
+
+        private void PrintPerson(Person p, int indent, bool lastChild)
+        {
+            var prefix = new string(' ', indent * 4);
+            var connector = lastChild ? "└──" : "├──";
+            // Добавляем дату рождения при выводе
+            Console.WriteLine(prefix + connector + $"{p.FullName} ({p.BirthDate:yyyy-MM-dd}) [{p.Id}]");
+            var children = p.Children.Select(pc => pc.Child).ToList();
+            for (int i = 0; i < children.Count; i++)
+            {
+                PrintPerson(children[i], indent + 1, i == children.Count - 1);
+            }
+        }
+
+        public IEnumerable<Person> GetParents(Guid personId)
+        {
+            var person = _repository.GetPersonById(personId);
+            if (person == null) return Enumerable.Empty<Person>();
+
+            return person.Parents.Select(p => p.Parent);
+        }
+
+        public IEnumerable<Person> GetChildren(Guid personId)
+        {
+            var person = _repository.GetPersonById(personId);
+            if (person == null) return Enumerable.Empty<Person>();
+
+            return person.Children.Select(c => c.Child);
         }
 
         public int GetAncestorAgeAtDescendantBirth(Guid ancestorId, Guid descendantId)
@@ -125,38 +206,10 @@ namespace BLL.Services
 
         public IEnumerable<Person> GetCommonAncestors(Guid personId1, Guid personId2)
         {
-            var ancestors1 = GetAllAncestors(personId1);
-            var ancestors2 = GetAllAncestors(personId2);
+            var ancestors1 = GetAllAncestors(personId1).ToHashSet(new PersonIdComparer());
+            var ancestors2 = GetAllAncestors(personId2).ToHashSet(new PersonIdComparer());
 
             return ancestors1.Intersect(ancestors2, new PersonIdComparer());
-        }
-
-        private HashSet<Person> GetAllAncestors(Guid personId)
-        {
-            var visited = new HashSet<Guid>();
-            var result = new HashSet<Person>(new PersonIdComparer());
-
-            void DFS(Guid pid)
-            {
-                if (visited.Contains(pid)) return;
-                visited.Add(pid);
-
-                var p = _repository.GetPersonById(pid);
-                if (p == null) return;
-
-                foreach (var parentId in p.Parents)
-                {
-                    var parent = _repository.GetPersonById(parentId);
-                    if (parent != null)
-                    {
-                        result.Add(parent);
-                        DFS(parent.Id);
-                    }
-                }
-            }
-
-            DFS(personId);
-            return result;
         }
 
         private class PersonIdComparer : IEqualityComparer<Person>

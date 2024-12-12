@@ -9,8 +9,6 @@ class Program
 {
     static void Main()
     {
-        // Подключение к SQLite БД
-        // База будет создаваться в файле "people.db"
         var connectionString = "Data Source=people.db";
         var context = new PersonContext(connectionString);
         var repository = new EfRepository(context);
@@ -28,6 +26,9 @@ class Program
             Console.WriteLine("7. Показать всех предков для человека по id");
             Console.WriteLine("8. Показать все дерево");
             Console.WriteLine("9. Очистить все дерево");
+            Console.WriteLine("10. Вывести ближайших родственников (родителей и детей)");
+            Console.WriteLine("11. Вычислить возраст предка при рождении потомка");
+            Console.WriteLine("12. Искать общих предков для двух выбранных людей");
             Console.WriteLine("0. Выход");
             Console.Write("Выберите действие: ");
             var choice = Console.ReadLine();
@@ -63,6 +64,15 @@ class Program
                 case "9":
                     service.ClearTree();
                     Console.WriteLine("Древо очищено.");
+                    break;
+                case "10":
+                    ShowCloseRelatives(service);
+                    break;
+                case "11":
+                    CalculateAncestorAge(service);
+                    break;
+                case "12":
+                    FindCommonAncestors(service);
                     break;
                 default:
                     Console.WriteLine("Неверный выбор.");
@@ -237,6 +247,84 @@ class Program
         else
         {
             Console.WriteLine("Некорректный ID.");
+        }
+    }
+
+    static void ShowCloseRelatives(IFamilyTreeService service)
+    {
+        Console.Write("Введите ID человека: ");
+        var idStr = Console.ReadLine();
+        if (Guid.TryParse(idStr, out var id))
+        {
+            var person = service.GetAllPersons().FirstOrDefault(p => p.Id == id);
+            if (person == null)
+            {
+                Console.WriteLine("Человек с таким ID не найден.");
+                return;
+            }
+            
+            var parents = service.GetParents(id).ToList();
+            var children = service.GetChildren(id).ToList();
+            var spouse = person.Spouse; // так как мы подгружаем из репозитория с Include, жена/муж должны быть доступны
+
+            Console.WriteLine("Родители: " + (parents.Any() ? string.Join(", ", parents.Select(p => p.FullName)) : "Нет"));
+            Console.WriteLine("Дети: " + (children.Any() ? string.Join(", ", children.Select(p => p.FullName)) : "Нет"));
+            Console.WriteLine("Супруг(а): " + (spouse != null ? spouse.FullName : "Нет"));
+        }
+        else
+        {
+            Console.WriteLine("Некорректный ID.");
+        }
+    }
+
+
+    static void CalculateAncestorAge(IFamilyTreeService service)
+    {
+        Console.Write("Введите ID предка: ");
+        var aidStr = Console.ReadLine();
+        Console.Write("Введите ID потомка: ");
+        var didStr = Console.ReadLine();
+
+        if (Guid.TryParse(aidStr, out var aid) && Guid.TryParse(didStr, out var did))
+        {
+            int age = service.GetAncestorAgeAtDescendantBirth(aid, did);
+            if (age >= 0)
+                Console.WriteLine($"Возраст предка при рождении потомка: {age} лет.");
+            else
+                Console.WriteLine("Невозможно вычислить возраст.");
+        }
+        else
+        {
+            Console.WriteLine("Некорректный ввод.");
+        }
+    }
+
+    static void FindCommonAncestors(IFamilyTreeService service)
+    {
+        Console.Write("Введите ID первого человека: ");
+        var p1Str = Console.ReadLine();
+        Console.Write("Введите ID второго человека: ");
+        var p2Str = Console.ReadLine();
+
+        if (Guid.TryParse(p1Str, out var p1) && Guid.TryParse(p2Str, out var p2))
+        {
+            var common = service.GetCommonAncestors(p1, p2).ToList();
+            if (common.Any())
+            {
+                Console.WriteLine("Общие предки:");
+                foreach (var c in common)
+                {
+                    Console.WriteLine($"- {c.FullName} ({c.Id})");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Нет общих предков.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Некорректный ввод.");
         }
     }
 }

@@ -13,3 +13,5 @@
 /home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/DAL/obj/Debug/net8.0/refint/DAL.dll
 /home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/DAL/obj/Debug/net8.0/DAL.pdb
 /home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/DAL/obj/Debug/net8.0/ref/DAL.dll
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/DAL/bin/Debug/net8.0/DAL.runtimeconfig.json
+/home/kitt/Учеба_ИТМО/Семестр 1/ООП/labs/lab4/GenealogyTreeSolution/DAL/obj/Debug/net8.0/DAL.genruntimeconfig.cache
